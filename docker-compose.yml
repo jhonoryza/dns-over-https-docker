@@ -1,0 +1,76 @@
+version: "3"
+
+services:
+  cloudflared:
+    image: visibilityspots/cloudflared
+    container_name: cloudflared
+    ports:
+      - "5054:5054/tcp"
+      - "5054:5054/udp"
+    environment:
+        TZ: Asia/Jakarta
+        PORT: 5054
+        ADDRESS: 0.0.0.0
+        UPSTREAM1: https://1.1.1.1/dns-query
+        UPSTREAM2: https://1.0.0.1/dns-query
+    restart: always
+    networks:
+      cloudflare_net:
+        ipv4_address: 10.0.0.2
+
+  googled:
+    image: visibilityspots/cloudflared
+    container_name: googled
+    ports:
+      - '5055:5055/tcp'
+      - '5055:5055/udp'
+    environment:
+      TZ: Asia/Jakarta
+      PORT: 5055
+      UPSTREAM1: https://8.8.8.8/dns-query
+      UPSTREAM2: https://8.4.4.8/dns-query
+    restart: always
+    networks:
+      cloudflare_net:
+        ipv4_address: 10.0.0.5
+
+  quad9:
+    image: visibilityspots/cloudflared
+    container_name: quad9
+    ports:
+      - '5056:5056/tcp'
+      - '5056:5056/udp'
+    environment:
+      TZ: Asia/Jakarta
+      PORT: 5056
+      UPSTREAM1: https://9.9.9.9/dns-query
+      UPSTREAM2: https://149.112.112.112/dns-query
+    restart: always
+    networks:
+      cloudflare_net:
+        ipv4_address: 10.0.0.6
+
+  next:
+    image: visibilityspots/cloudflared
+    container_name: next
+    ports:
+      - '5057:5057/tcp'
+      - '5057:5057/udp'
+    environment:
+      TZ: Asia/Jakarta
+      PORT: 5057
+      UPSTREAM1: https://dns.nextdns.io/2cbfa8
+      UPSTREAM2: https://dns.nextdns.io/2cbfa8
+    restart: always
+    networks:
+      cloudflare_net:
+        ipv4_address: 10.0.0.7
+
+networks:
+  cloudflare_net:
+    #external: true
+    name: cloudflare_net
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.0.0.0/28
